@@ -1,0 +1,6 @@
+# Dependencias para ejecutar el notebook bank_marketing_pipe.ipynb
+pandas>=2.0
+scikit-learn>=1.3
+matplotlib>=3.7
+seaborn>=0.13
+jupyter
