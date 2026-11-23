@@ -84,8 +84,8 @@ Sobre el conjunto de test (9.043 clientes, de los cuales 1.072 contrataron):
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/juan1639/Bank_marketing_notebook_portfolio.git
-cd Bank_marketing_notebook_portfolio
+git clone https://github.com/juan1639/Bank_marketing_notebook.git
+cd Bank_marketing_notebook
 ```
 
 ### 2. Crear un entorno virtual e instalar dependencias
@@ -119,7 +119,7 @@ El dataset `bank-full.csv` ya está incluido en el repositorio, junto al noteboo
 ## 📁 Estructura del proyecto
 
 ```
-Bank_marketing_notebook_portfolio/
+Bank_marketing_notebook/
 ├── bank_marketing_pipe.ipynb   # Notebook con el análisis y los modelos
 ├── bank-full.csv               # Dataset (UCI, CC BY 4.0)
 ├── requirements.txt            # Dependencias
