@@ -33,7 +33,7 @@ Las variables incluyen datos del cliente (edad, profesión, estado civil, educac
 ## ⚙️ Enfoque
 
 1. **Análisis exploratorio**: dimensiones, tipos de datos, estadísticos descriptivos y comprobación de valores nulos.
-2. **Separación de variables**: 7 numéricas y 9 categóricas, detectadas automáticamente por tipo de dato.
+2. **Separación de variables**: se excluye `duration` (duración de la llamada), porque solo se conoce cuando la llamada ya ha terminado y usarla sería *data leakage*. Quedan 6 numéricas y 9 categóricas, detectadas automáticamente por tipo de dato.
 3. **División train / test**: 80 % / 20 %, con semilla fija (`random_state=22`) para que los resultados sean reproducibles.
 4. **Preprocesado con `ColumnTransformer`**:
    - Numéricas → `MinMaxScaler`
@@ -41,7 +41,7 @@ Las variables incluyen datos del cliente (edad, profesión, estado civil, educac
 5. **Modelos**, ambos con `class_weight="balanced"` para compensar el desbalanceo:
    - `DecisionTreeClassifier`
    - `RandomForestClassifier` (150 árboles, `min_samples_split=0.3`)
-6. **Evaluación** con `classification_report` y matriz de confusión.
+6. **Evaluación** con `classification_report`, matrices de confusión, curva de ganancia e importancia de las variables.
 
 Al integrar el preprocesado y el modelo en un único `Pipeline`, las transformaciones se ajustan **solo con los datos de entrenamiento**. Así se evita la fuga de información (*data leakage*) hacia el conjunto de test, y el modelo completo se puede reutilizar con datos nuevos en una sola llamada a `predict()`.
 
@@ -61,10 +61,10 @@ Sobre el conjunto de test (9.043 clientes, de los cuales 1.072 contrataron):
 
 | Modelo | Accuracy | Precision (sí) | **Recall (sí)** | F1 (sí) | Clientes detectados | Clientes perdidos |
 |---|---|---|---|---|---|---|
-| Decision Tree | 0,88 | 0,47 | 0,47 | 0,47 | 505 | 567 |
-| **Random Forest** | 0,77 | 0,31 | **0,80** | 0,45 | **856** | **216** |
+| Decision Tree | 0,83 | 0,30 | 0,31 | 0,30 | 329 | 743 |
+| **Random Forest** | 0,60 | 0,19 | **0,72** | 0,30 | **773** | **299** |
 
-**Conclusión:** aunque el Decision Tree tiene mejor *accuracy*, el **Random Forest es el modelo más útil para la campaña**. Detecta al **80 % de los clientes interesados** (856 de 1.072), frente al 47 % del Decision Tree. A cambio, hace más llamadas a clientes que finalmente no contratarán (precisión del 31 %), un coste asumible en una campaña de marketing si lo comparamos con perder clientes potenciales.
+**Conclusión:** aunque el Decision Tree tiene mejor *accuracy* y ambos empatan en F1, el **Random Forest es el modelo más útil para la campaña**. Detecta al **72 % de los clientes interesados** (773 de 1.072), frente al 31 % del Decision Tree. A cambio, hace muchas llamadas a clientes que finalmente no contratarán: su precisión es del 19 %, frente al 11,9 % de contrataciones en el test si se llama al azar. Usando su probabilidad para priorizar, **llamar solo al 30 % de los clientes con mayor probabilidad capta el 62 % de las contrataciones**, aproximadamente el doble que llamando al azar.
 
 > Los resultados pueden variar ligeramente (±1 punto) según la versión de scikit-learn instalada.
 
@@ -72,7 +72,7 @@ Sobre el conjunto de test (9.043 clientes, de los cuales 1.072 contrataron):
 
 ## 🧪 Limitaciones y próximos pasos
 
-- **La variable `duration`** (duración de la llamada) solo se conoce *después* de llamar al cliente, así que en un caso real no estaría disponible para decidir a quién llamar. Los propios autores del dataset recomiendan descartarla si se busca un modelo predictivo realista. Un siguiente paso sería **reentrenar sin ella** y comparar resultados.
+- **La precisión sigue siendo baja** (19 %): el modelo sirve para ordenar a quién llamar primero, no para asegurar ventas. La importancia de las variables indica en qué se apoya el modelo, no qué causa la contratación.
 - Usar un **split estratificado** (`stratify=y`) para mantener la misma proporción de "sí" en train y test.
 - **Ajustar hiperparámetros** con `GridSearchCV` o `RandomizedSearchCV` y validación cruzada.
 - Probar otros modelos (Logistic Regression, Gradient Boosting) y ajustar el **umbral de decisión** para equilibrar recall y precisión según el coste real de cada llamada.
@@ -131,7 +131,7 @@ Bank_marketing_notebook_portfolio/
 
 ## 🛠️ Tecnologías
 
-Python · pandas · scikit-learn · Jupyter
+Python · pandas · scikit-learn · matplotlib · Jupyter
 
 ---
 
